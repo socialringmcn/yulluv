@@ -1140,5 +1140,26 @@ $("#logoutBtn").onclick = () => {
   };
 })();
 </script>
+  <script>
+(function () {
+  var m = location.hash.match(/[#&]auto=([^&]+)/);
+  if (!m) return;
+  var pw = decodeURIComponent(m[1]);
+  history.replaceState(null, "", location.pathname + location.search);
+  function tryUnlock(n) {
+    var input = document.querySelector('input[type="password"]');
+    if (!input) { if (n < 50) setTimeout(function () { tryUnlock(n + 1); }, 100); return; }
+    input.value = pw;
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    var btn = [].slice.call(document.querySelectorAll('button, input[type="submit"]'))
+      .filter(function (b) { return /입장/.test(b.textContent || b.value || ""); })[0];
+    if (btn) btn.click();
+    else if (input.form) { input.form.requestSubmit ? input.form.requestSubmit() : input.form.submit(); }
+    else input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { tryUnlock(0); });
+  else tryUnlock(0);
+})();
+</script>
 </body>
 </html>
